@@ -1,0 +1,32 @@
+{{/*
+    WARNING: OBSOLETE! Use Hugo's own `merge` function.
+
+    Merge any number of maps on top of each other
+
+    @author @regisphilibert
+
+    @context Slice of Maps
+
+    @access public
+
+    @return a Map
+*/}}
+{{ $maps := . }}
+{{ $keys := slice }}
+{{ range $maps }}
+    {{ range $index, $value := . }}
+        {{ $keys = $keys | append $index }}
+    {{ end }}
+{{ end }}
+{{ $keys = uniq $keys }}
+{{ $s := newScratch }}
+{{ $s.Add "data" dict }}
+{{ range $keys }}
+    {{ $key := . }}
+    {{ range $maps }}
+        {{ with index . $key }}
+            {{ $s.SetInMap "data" $key . }}   
+        {{ end }}
+    {{ end }}
+{{ end }}
+{{ return $s.Get "data" }}

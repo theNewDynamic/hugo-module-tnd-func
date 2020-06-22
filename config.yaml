@@ -1,0 +1,4 @@
+module:
+  mounts:
+    - source: functions
+      target: layouts/partials/tnd-func
