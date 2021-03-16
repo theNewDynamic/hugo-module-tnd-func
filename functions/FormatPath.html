@@ -26,29 +26,27 @@ TODO:
   - [ ] Make sure content dir can be anything and not necessarily `content/{languageCode}`
 */}}
 {{ $path := . }}
-{{ $language := false }}
+{{ $language := site.Language }}
+
 {{ if reflect.IsMap . }}
   {{ $path = .path }}
   {{/* Language has been passed by user */}}
   {{ with .lang }}
-    {{ $language = . }}
+    {{ with where site.Sites ".Language.Lang" . }}
+      {{ with index . 0 }}
+        {{ $language = .Language }}
+      {{ end }}
+    {{ end }}
   {{ end }}
 {{ end }}
 
-{{/* We get the current language */}}
-{{ if not $language }}
-  {{ $language = site.Language }}
+{{ $trims := slice }}
+{{ $trims = $trims | append $language.ContentDir }}
+{{ $trims = $trims | append "content/" }}
+{{ $trims = $trims | append (print $language.Lang "/") }}
+
+{{ range $trims }}
+  {{ $path = strings.TrimPrefix . $path }}
 {{ end }}
-
-
-
-{{/* We remove the `content/` part from the language's `.ContentDir` so only the language part remains */}}
-{{ $contentDir := strings.TrimPrefix "content/" $language.ContentDir }}
-
-{{/* We add a slash to the language part. We now have the language part of the path */}}
-{{ $contentDirPath := add $contentDir "/" }}
-
-{{/* stings.TrimPrefix will remove $contentDirPath from the input path if found at the begining */}}
-{{ $path = strings.TrimPrefix $contentDirPath $path }}
 
 {{ return $path }}
